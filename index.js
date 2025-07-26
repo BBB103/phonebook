@@ -94,7 +94,8 @@ app.post('/api/persons', (request, response) => {
             person.save().then(saved => {
                 console.log('saved', saved);
                 response.json(saved);
-            });
+            })
+            .catch(error => next(error));
         } else {
             console.log('not allowed!!');
             response.status(400).json({ 
@@ -115,7 +116,9 @@ app.use(unknownEndpoint)
 const errorHandler = (error, request, response, next) => {
     console.log(error.message)
     if (error.name === 'CastError') {
-        response.status(400).send({ error : 'malformatted id'})
+        return response.status(400).send({ error : 'malformatted id'})
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({'error': error.message})
     }
     next(error)
 }
